@@ -9,16 +9,7 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'order_id',
-        'product_id',
-        'quantity',
-        'price'
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2'
-    ];
+    protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
 
     public function order()
     {
@@ -28,10 +19,5 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function getSubtotalAttribute()
-    {
-        return $this->quantity * $this->price;
     }
 }

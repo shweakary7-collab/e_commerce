@@ -10,20 +10,8 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'price',
-        'category',
-        'image',
-        'stock',
-        'is_active'
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
-        'stock' => 'integer'
+        'name', 'slug', 'description', 'price', 
+        'category', 'image', 'stock', 'is_active'
     ];
 
     public function getImageUrlAttribute()
@@ -31,7 +19,7 @@ class Product extends Model
         if ($this->image) {
             return asset('storage/' . $this->image);
         }
-        return asset('images/no-image.png');
+        return 'https://via.placeholder.com/300x200?text=No+Image';
     }
 
     public function cartItems()
@@ -44,7 +32,6 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // Categories static list
     public static function getCategories()
     {
         return [
@@ -55,7 +42,6 @@ class Product extends Model
             'top' => 'Tops',
             'blouse' => 'Blouses',
             'dress' => 'Dresses',
-            'accessories' => 'Accessories'
         ];
     }
 }

@@ -20,7 +20,11 @@ class CheckoutController extends Controller
             ->get();
         
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty!');
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
+        }
+        
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
         $total = $cartItems->sum(function ($item) {
@@ -32,9 +36,8 @@ class CheckoutController extends Controller
 
     public function process(Request $request)
     {
-        // Check if user is logged in
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login or register to continue checkout');
+            return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
         $sessionId = Session::getId();
@@ -43,14 +46,13 @@ class CheckoutController extends Controller
             ->get();
         
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty!');
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
         }
         
         $total = $cartItems->sum(function ($item) {
             return $item->quantity * $item->product->price;
         });
         
-        // Create order
         $order = Order::create([
             'user_id' => Auth::id(),
             'order_number' => Order::generateOrderNumber(),
@@ -60,7 +62,6 @@ class CheckoutController extends Controller
             'shipping_address' => $request->shipping_address ?? 'No address provided'
         ]);
         
-        // Create order items
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -70,7 +71,6 @@ class CheckoutController extends Controller
             ]);
         }
         
-        // Clear cart
         Cart::where('session_id', $sessionId)->delete();
         
         return redirect()->route('home')->with('success', 'Order placed successfully! Order #: ' . $order->order_number);

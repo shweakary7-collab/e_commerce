@@ -19,7 +19,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Product::getCategories();
-        unset($categories['all']); // Remove 'all' from admin create
+        unset($categories['all']);
         return view('backend.products.create', compact('categories'));
     }
 
@@ -36,6 +36,7 @@ class ProductController extends Controller
         
         $data = $request->all();
         $data['slug'] = Str::slug($request->name) . '-' . uniqid();
+        $data['is_active'] = $request->has('is_active');
         
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
@@ -76,6 +77,7 @@ class ProductController extends Controller
         ]);
         
         $data = $request->all();
+        $data['is_active'] = $request->has('is_active');
         
         if ($request->hasFile('image')) {
             if ($product->image) {

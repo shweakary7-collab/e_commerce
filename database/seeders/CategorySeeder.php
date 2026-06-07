@@ -19,7 +19,12 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::updateOrCreate(
+                ['slug' => $category['slug']],
+                $category
+            );
         }
+        
+        $this->command->info('✓ Categories seeded successfully!');
     }
 }

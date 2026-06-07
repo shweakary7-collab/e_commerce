@@ -13,9 +13,9 @@ class AdminMiddleware
         if (!Auth::check()) {
             return redirect()->route('login');
         }
-        
+
         if (!Auth::user()->is_admin) {
-            abort(403, 'Unauthorized access.');
+            abort(403, 'Unauthorized access. Admin only.');
         }
 
         return $next($request);

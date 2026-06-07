@@ -10,16 +10,8 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'order_number',
-        'total_amount',
-        'status',
-        'payment_method',
-        'shipping_address'
-    ];
-
-    protected $casts = [
-        'total_amount' => 'decimal:2'
+        'user_id', 'order_number', 'total_amount', 
+        'status', 'payment_method', 'shipping_address'
     ];
 
     public function user()
@@ -35,16 +27,5 @@ class Order extends Model
     public static function generateOrderNumber()
     {
         return 'ORD-' . strtoupper(uniqid());
-    }
-
-    public function getStatusBadgeAttribute()
-    {
-        $badges = [
-            'pending' => 'warning',
-            'processing' => 'info',
-            'completed' => 'success',
-            'cancelled' => 'danger'
-        ];
-        return $badges[$this->status] ?? 'secondary';
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
@@ -8,19 +7,9 @@ use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\ProductController as AdminProductController;
 use App\Http\Controllers\Backend\OrderController as AdminOrderController;
-use App\Http\Controllers\Backend\CategoryController as AdminCategoryController;
 
-/*
-|--------------------------------------------------------------------------
-| Frontend Routes
-|--------------------------------------------------------------------------
-*/
-
-// Home page
+// Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// Category Routes (Frontend - User side)
-Route::get('/category/{category}', [HomeController::class, 'category'])->name('category.show');
 
 // Cart Routes (No login required)
 Route::prefix('cart')->name('cart.')->group(function () {
@@ -30,40 +19,23 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('remove');
 });
 
-// Checkout Routes (Requires authentication)
+// Checkout Routes (Requires login)
 Route::middleware(['auth'])->prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('index');
     Route::post('/process', [CheckoutController::class, 'process'])->name('process');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Breeze Auth Routes
-|--------------------------------------------------------------------------
-*/
+// Breeze Auth Routes
 require __DIR__.'/auth.php';
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes (Backend)
-|--------------------------------------------------------------------------
-*/
-
+// Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Category Management (Admin)
-    Route::resource('categories', AdminCategoryController::class);
-    
-    // Products Management (Admin)
     Route::resource('products', AdminProductController::class);
-    
-    // Orders Management (Admin)
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
-        Route::get('/{id}', [AdminOrderController::class, 'show'])->name('show');
-        Route::post('/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
-        Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
+    Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+    Route::get('/{id}', [AdminOrderController::class, 'show'])->name('show');
+    Route::post('/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
+    Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
     });
 });

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -16,7 +15,6 @@ class DashboardController extends Controller
         $totalOrders = Order::count();
         $totalRevenue = Order::sum('total_amount');
         $totalUsers = User::where('is_admin', false)->count();
-        
         $recentOrders = Order::with('user')->latest()->take(5)->get();
         
         return view('backend.dashboard', compact(
