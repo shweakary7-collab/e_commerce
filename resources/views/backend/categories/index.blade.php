@@ -52,7 +52,7 @@
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 40px; color: #64748b; font-weight: 500;">
                             <i class="ri-inbox-line" style="font-size: 2rem; display: block; margin-bottom: 10px; color: #94a3b8;"></i>
-                            နမူနာ Category မရှိသေးပါဗျာ။
+                            နမူနာ Category မရှိသေးပါ။
                         </td>
                     </tr>
                     @endforelse

@@ -6,17 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
     public function index()
     {
-        $sessionId = Session::getId();
-        $cartItems = Cart::with('product')
-            ->where('session_id', $sessionId)
-            ->get();
-        
+        $cartItems = $this->getCartItems();
         $total = $cartItems->sum(function ($item) {
             return $item->quantity * $item->product->price;
         });
@@ -32,23 +29,44 @@ class CartController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
-        $sessionId = Session::getId();
+        $quantity = $request->quantity ?? 1;
         
-        $cartItem = Cart::where('session_id', $sessionId)
-            ->where('product_id', $product->id)
-            ->first();
-        
-        if ($cartItem) {
-            $cartItem->quantity += $request->quantity ?? 1;
-            $cartItem->save();
+        if (Auth::check()) {
+            // User is logged in - save to user cart
+            $cartItem = Cart::where('user_id', Auth::id())
+                ->where('product_id', $product->id)
+                ->first();
+            
+            if ($cartItem) {
+                $cartItem->quantity += $quantity;
+                $cartItem->save();
+            } else {
+                Cart::create([
+                    'user_id' => Auth::id(),
+                    'product_id' => $product->id,
+                    'quantity' => $quantity
+                ]);
+            }
         } else {
-            Cart::create([
-                'session_id' => $sessionId,
-                'product_id' => $product->id,
-                'quantity' => $request->quantity ?? 1
-            ]);
+            // User is not logged in - save to session cart
+            $sessionId = Session::getId();
+            $cartItem = Cart::where('session_id', $sessionId)
+                ->where('product_id', $product->id)
+                ->first();
+            
+            if ($cartItem) {
+                $cartItem->quantity += $quantity;
+                $cartItem->save();
+            } else {
+                Cart::create([
+                    'session_id' => $sessionId,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity
+                ]);
+            }
         }
         
+        // Remove the problematic line - no need for getCartCount()
         return redirect()->back()->with('success', 'Product added to cart!');
     }
 
@@ -56,25 +74,57 @@ class CartController extends Controller
     {
         $request->validate(['quantity' => 'required|integer|min:1']);
         
-        $sessionId = Session::getId();
-        $cartItem = Cart::where('session_id', $sessionId)
-            ->where('id', $id)
-            ->firstOrFail();
+        $cartItem = $this->getCartItemById($id);
         
-        $cartItem->update(['quantity' => $request->quantity]);
+        if ($cartItem) {
+            $cartItem->update(['quantity' => $request->quantity]);
+            return redirect()->back()->with('success', 'Cart updated!');
+        }
         
-        return redirect()->back()->with('success', 'Cart updated!');
+        return redirect()->back()->with('error', 'Cart item not found!');
     }
 
     public function remove($id)
     {
-        $sessionId = Session::getId();
-        $cartItem = Cart::where('session_id', $sessionId)
-            ->where('id', $id)
-            ->firstOrFail();
+        $cartItem = $this->getCartItemById($id);
         
-        $cartItem->delete();
+        if ($cartItem) {
+            $cartItem->delete();
+            return redirect()->back()->with('success', 'Item removed from cart!');
+        }
         
-        return redirect()->back()->with('success', 'Item removed from cart!');
+        return redirect()->back()->with('error', 'Cart item not found!');
+    }
+
+    /**
+     * Get cart items based on user login status
+     */
+    protected function getCartItems()
+    {
+        if (Auth::check()) {
+            return Cart::with('product')
+                ->where('user_id', Auth::id())
+                ->get();
+        } else {
+            return Cart::with('product')
+                ->where('session_id', Session::getId())
+                ->get();
+        }
+    }
+
+    /**
+     * Get cart item by ID based on user login status
+     */
+    protected function getCartItemById($id)
+    {
+        if (Auth::check()) {
+            return Cart::where('user_id', Auth::id())
+                ->where('id', $id)
+                ->first();
+        } else {
+            return Cart::where('session_id', Session::getId())
+                ->where('id', $id)
+                ->first();
+        }
     }
 }

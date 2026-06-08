@@ -9,11 +9,21 @@ class Cart extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['session_id', 'product_id', 'quantity'];
+    protected $fillable = [
+        'session_id',
+        'user_id',
+        'product_id',
+        'quantity'
+    ];
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function getSubtotalAttribute()

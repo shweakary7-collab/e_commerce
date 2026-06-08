@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
         
-        // Merge session cart to user cart
+        // Merge session cart to user cart after login
         $this->mergeCartAfterLogin();
         
         $request->session()->regenerate();
@@ -48,8 +48,10 @@ class AuthenticatedSessionController extends Controller
         $sessionId = Session::getId();
         $userId = Auth::id();
         
-        // Get session cart items
-        $sessionCartItems = Cart::where('session_id', $sessionId)->get();
+        // Get session cart items (where user_id is null and session_id matches)
+        $sessionCartItems = Cart::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->get();
         
         if ($sessionCartItems->isNotEmpty()) {
             foreach ($sessionCartItems as $sessionItem) {
@@ -62,16 +64,15 @@ class AuthenticatedSessionController extends Controller
                     // Update quantity if product already exists
                     $existingCartItem->quantity += $sessionItem->quantity;
                     $existingCartItem->save();
+                    // Delete the session item
+                    $sessionItem->delete();
                 } else {
-                    // Create new cart item for user
+                    // Transfer session cart to user cart
                     $sessionItem->user_id = $userId;
                     $sessionItem->session_id = null;
                     $sessionItem->save();
                 }
             }
-            
-            // Delete remaining session cart items (without user_id)
-            Cart::where('session_id', $sessionId)->whereNull('user_id')->delete();
         }
     }
 }

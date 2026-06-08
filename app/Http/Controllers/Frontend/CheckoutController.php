@@ -14,17 +14,17 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $sessionId = Session::getId();
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to continue checkout');
+        }
+        
+        // Get cart items for logged in user (not session)
         $cartItems = Cart::with('product')
-            ->where('session_id', $sessionId)
+            ->where('user_id', Auth::id())
             ->get();
         
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
-        }
-        
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
         $total = $cartItems->sum(function ($item) {
@@ -40,9 +40,9 @@ class CheckoutController extends Controller
             return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
-        $sessionId = Session::getId();
+        // Get cart items for logged in user (not session)
         $cartItems = Cart::with('product')
-            ->where('session_id', $sessionId)
+            ->where('user_id', Auth::id())
             ->get();
         
         if ($cartItems->isEmpty()) {
@@ -71,7 +71,8 @@ class CheckoutController extends Controller
             ]);
         }
         
-        Cart::where('session_id', $sessionId)->delete();
+        // Delete user's cart items (not session)
+        Cart::where('user_id', Auth::id())->delete();
         
         return redirect()->route('home')->with('success', 'Order placed successfully! Order #: ' . $order->order_number);
     }
