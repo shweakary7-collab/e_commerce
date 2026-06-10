@@ -29,20 +29,38 @@
                             <strong class="text-primary">${{ number_format($product->price, 2) }}</strong>
                             <small class="text-muted"> | Stock: {{ $product->stock }}</small>
                         </p>
-                        <form action="{{ route('cart.add') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" style="width: 60px; display: inline-block;">
-                            <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
-                        </form>
+                        
+                        @php
+                            $user = Auth::user();
+                            $isAdminOrStaff = $user && ($user->hasRole('admin') || $user->hasRole('staff'));
+                        @endphp
+                        
+                        @if($isAdminOrStaff)
+                            <button class="btn btn-secondary btn-sm" disabled style="width: 100%;">
+                                <i class="fas fa-eye"></i> View Only
+                            </button>
+                        @else
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <div class="input-group">
+                                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control form-control-sm" style="width: 70px;">
+                                    <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
         @empty
-            <div class="col-12"><div class="alert alert-info">No products found.</div></div>
+            <div class="col-12">
+                <div class="alert alert-info">No products found.</div>
+            </div>
         @endforelse
     </div>
     
-    <div class="d-flex justify-content-center">{{ $products->appends(['category' => $category])->links() }}</div>
+    <div class="d-flex justify-content-center">
+        {{ $products->appends(['category' => $category])->links() }}
+    </div>
 </div>
 @endsection

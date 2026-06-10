@@ -37,7 +37,8 @@
 
                             </a>
                             <ul class="dropdown-menu">
-                                <?php if(Auth::user()->is_admin): ?>
+                                
+                                <?php if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff')): ?>
                                     <li><a class="dropdown-item" href="<?php echo e(route('admin.dashboard')); ?>">Admin Dashboard</a></li>
                                 <?php endif; ?>
                                 <li>
@@ -52,6 +53,14 @@
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('login')); ?>">Login</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('register')); ?>">Register</a></li>
                     <?php endif; ?>
+                    
+                    
+                    <?php
+                        $user = Auth::user();
+                        $isAdminOrStaff = $user && ($user->hasRole('admin') || $user->hasRole('staff'));
+                    ?>
+                    
+                    <?php if(!$isAdminOrStaff): ?>
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="<?php echo e(route('cart.index')); ?>">
                             <i class="fas fa-shopping-cart"></i> Cart
@@ -69,6 +78,7 @@
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>

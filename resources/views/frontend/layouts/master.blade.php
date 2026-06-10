@@ -36,7 +36,8 @@
                                 {{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu">
-                                @if(Auth::user()->is_admin)
+                                {{-- Changed: Use hasRole('admin') or hasRole('staff') instead of is_admin --}}
+                                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))
                                     <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                                 @endif
                                 <li>
@@ -51,6 +52,14 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
                     @endauth
+                    
+                    {{-- NEW: Hide Cart for Admin --}}
+                    @php
+                        $user = Auth::user();
+                        $isAdminOrStaff = $user && ($user->hasRole('admin') || $user->hasRole('staff'));
+                    @endphp
+                    
+                    @if(!$isAdminOrStaff)
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="{{ route('cart.index') }}">
                             <i class="fas fa-shopping-cart"></i> Cart
@@ -68,6 +77,7 @@
                             @endif
                         </a>
                     </li>
+                    @endif
                 </ul>
             </div>
         </div>

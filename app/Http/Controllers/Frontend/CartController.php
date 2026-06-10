@@ -13,6 +13,11 @@ class CartController extends Controller
 {
     public function index()
     {
+        // Admin and Staff cannot access cart
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))) {
+            return redirect()->route('home')->with('error', 'You cannot use cart functionality.');
+        }
+        
         $cartItems = $this->getCartItems();
         $total = $cartItems->sum(function ($item) {
             return $item->quantity * $item->product->price;
@@ -23,6 +28,11 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
+        // Admin and Staff cannot add to cart
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))) {
+            return redirect()->route('home')->with('error', 'You cannot add items to cart.');
+        }
+        
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'integer|min:1'
@@ -72,6 +82,11 @@ class CartController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Admin and Staff cannot update cart
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))) {
+            return redirect()->route('home')->with('error', 'You cannot update cart.');
+        }
+        
         $request->validate(['quantity' => 'required|integer|min:1']);
         
         $cartItem = $this->getCartItemById($id);
@@ -86,6 +101,11 @@ class CartController extends Controller
 
     public function remove($id)
     {
+        // Admin and Staff cannot remove from cart
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))) {
+            return redirect()->route('home')->with('error', 'You cannot remove items from cart.');
+        }
+        
         $cartItem = $this->getCartItemById($id);
         
         if ($cartItem) {
