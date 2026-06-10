@@ -17,7 +17,6 @@
             </div>
         </div>
     </nav>
-    
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-2 d-md-block bg-light sidebar" style="min-height: calc(100vh - 56px);">
@@ -26,6 +25,8 @@
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('admin.dashboard')); ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('admin.products.index')); ?>"><i class="fas fa-box"></i> Products</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?php echo e(route('admin.orders.index')); ?>"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo e(route('admin.roles.index')); ?>"><i class="fas fa-shopping-cart"></i> Roles</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo e(route('admin.users.index')); ?>"><i class="fas fa-shopping-cart"></i> Users</a></li>
                     </ul>
                 </div>
             </nav>

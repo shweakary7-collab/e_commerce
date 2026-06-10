@@ -32,10 +32,8 @@
                         <form action="{{ route('cart.add') }}" method="POST">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <div class="input-group">
-                                <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control form-control-sm" style="width: 70px;">
-                                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
-                            </div>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" style="width: 60px; display: inline-block;">
+                            <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
                         </form>
                     </div>
                 </div>

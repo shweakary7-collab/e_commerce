@@ -1,12 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\OrderController as AdminOrderController;
+use App\Http\Controllers\Backend\ProductController as AdminProductController;
+use App\Http\Controllers\Backend\RoleController;
+use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
-use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\ProductController as AdminProductController;
-use App\Http\Controllers\Backend\OrderController as AdminOrderController;
+use App\Http\Controllers\Frontend\HomeController;
+use Illuminate\Support\Facades\Route;
 
 // Frontend Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -32,10 +34,13 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', AdminProductController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('users', UserController::class);
+
     Route::prefix('orders')->name('orders.')->group(function () {
-    Route::get('/', [AdminOrderController::class, 'index'])->name('index');
-    Route::get('/{id}', [AdminOrderController::class, 'show'])->name('show');
-    Route::post('/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
-    Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/{id}', [AdminOrderController::class, 'show'])->name('show');
+        Route::post('/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
     });
 });

@@ -15,10 +15,10 @@ class CheckoutController extends Controller
     public function index()
     {
         if (!Auth::check()) {
+            session()->put('url.intended', route('checkout.index'));
             return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
-        // Get cart items for logged in user (not session)
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
             ->get();
@@ -40,7 +40,6 @@ class CheckoutController extends Controller
             return redirect()->route('login')->with('error', 'Please login to continue checkout');
         }
         
-        // Get cart items for logged in user (not session)
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
             ->get();
@@ -70,8 +69,7 @@ class CheckoutController extends Controller
                 'price' => $item->product->price
             ]);
         }
-        
-        // Delete user's cart items (not session)
+    
         Cart::where('user_id', Auth::id())->delete();
         
         return redirect()->route('home')->with('success', 'Order placed successfully! Order #: ' . $order->order_number);

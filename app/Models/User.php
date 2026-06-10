@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'name',
@@ -29,7 +30,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->is_admin === true;
+        return $this->is_admin === true || $this->hasRole('admin');
     }
 
     public function orders()

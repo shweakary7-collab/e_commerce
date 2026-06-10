@@ -33,10 +33,8 @@
                         <form action="<?php echo e(route('cart.add')); ?>" method="POST">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
-                            <div class="input-group">
-                                <input type="number" name="quantity" value="1" min="1" max="<?php echo e($product->stock); ?>" class="form-control form-control-sm" style="width: 70px;">
-                                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
-                            </div>
+                            <input type="number" name="quantity" value="1" min="1" max="<?php echo e($product->stock); ?>" style="width: 60px; display: inline-block;">
+                            <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
                         </form>
                     </div>
                 </div>

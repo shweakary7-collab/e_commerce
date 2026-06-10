@@ -7,7 +7,7 @@
     <div class="mb-3"><label>Name</label><input type="text" name="name" class="form-control" value="<?php echo e($product->name); ?>" required></div>
     <div class="mb-3"><label>Description</label><textarea name="description" class="form-control" rows="5" required><?php echo e($product->description); ?></textarea></div>
     <div class="row">
-        <div class="col-md-4"><label>Price ($)</label><input type="number" step="0.01" name="price" class="form-control" value="<?php echo e($product->price); ?>" required></div>
+        <div class="col-md-4"><label>Price (MMK)</label><input type="number" step="0.01" name="price" class="form-control" value="<?php echo e($product->price); ?>" required></div>
         <div class="col-md-4"><label>Category</label><select name="category" class="form-control" required><?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($key); ?>" <?php echo e($product->category==$key?'selected':''); ?>><?php echo e($name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?></select></div>
         <div class="col-md-4"><label>Stock</label><input type="number" name="stock" class="form-control" value="<?php echo e($product->stock); ?>" required></div>
     </div>

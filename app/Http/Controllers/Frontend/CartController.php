@@ -51,6 +51,7 @@ class CartController extends Controller
             // User is not logged in - save to session cart
             $sessionId = Session::getId();
             $cartItem = Cart::where('session_id', $sessionId)
+                ->whereNull('user_id')
                 ->where('product_id', $product->id)
                 ->first();
             
@@ -66,7 +67,6 @@ class CartController extends Controller
             }
         }
         
-        // Remove the problematic line - no need for getCartCount()
         return redirect()->back()->with('success', 'Product added to cart!');
     }
 
@@ -96,9 +96,6 @@ class CartController extends Controller
         return redirect()->back()->with('error', 'Cart item not found!');
     }
 
-    /**
-     * Get cart items based on user login status
-     */
     protected function getCartItems()
     {
         if (Auth::check()) {
@@ -108,13 +105,11 @@ class CartController extends Controller
         } else {
             return Cart::with('product')
                 ->where('session_id', Session::getId())
+                ->whereNull('user_id')
                 ->get();
         }
     }
 
-    /**
-     * Get cart item by ID based on user login status
-     */
     protected function getCartItemById($id)
     {
         if (Auth::check()) {
@@ -123,6 +118,7 @@ class CartController extends Controller
                 ->first();
         } else {
             return Cart::where('session_id', Session::getId())
+                ->whereNull('user_id')
                 ->where('id', $id)
                 ->first();
         }

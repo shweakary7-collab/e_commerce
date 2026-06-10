@@ -12,12 +12,18 @@ class ProductController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('view products')) {
+            abort(403, 'You do not have permission to view products.');
+        }
         $products = Product::latest()->paginate(15);
         return view('backend.products.index', compact('products'));
     }
 
     public function create()
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('create products')) {
+            abort(403, 'You do not have permission to create products.');
+        }
         $categories = Product::getCategories();
         unset($categories['all']);
         return view('backend.products.create', compact('categories'));
@@ -25,6 +31,9 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('create products')) {
+            abort(403, 'You do not have permission to create products.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required',
@@ -51,12 +60,18 @@ class ProductController extends Controller
 
     public function show($id)
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('view products')) {
+            abort(403, 'You do not have permission to view products.');
+        }
         $product = Product::findOrFail($id);
         return view('backend.products.show', compact('product'));
     }
 
     public function edit($id)
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
         $product = Product::findOrFail($id);
         $categories = Product::getCategories();
         unset($categories['all']);
@@ -65,6 +80,9 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('edit products')) {
+            abort(403, 'You do not have permission to edit products.');
+        }
         $product = Product::findOrFail($id);
         
         $request->validate([
@@ -95,6 +113,9 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
+        if (!auth()->user()->hasRole('admin') && !auth()->user()->can('delete products')) {
+            abort(403, 'You do not have permission to delete products.');
+        }
         $product = Product::findOrFail($id);
         
         if ($product->image) {

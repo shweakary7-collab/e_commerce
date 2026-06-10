@@ -13,11 +13,12 @@ class AdminMiddleware
         if (!Auth::check()) {
             return redirect()->route('login');
         }
+        $user = Auth::user();
 
-        if (!Auth::user()->is_admin) {
-            abort(403, 'Unauthorized access. Admin only.');
+        if ($user->hasRole('admin') || $user->hasRole('staff')) {
+            return $next($request);
         }
-
-        return $next($request);
+         abort(403, 'Unauthorized access. Admin or Staff only.');
+  
     }
 }

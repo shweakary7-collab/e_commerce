@@ -23,6 +23,14 @@ class RegisteredUserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Get the old session ID BEFORE creating user (this is the guest session)
+        $oldSessionId = Session::getId();
+        
+        // Get cart items from old session
+        $sessionCartItems = Cart::where('session_id', $oldSessionId)
+            ->whereNull('user_id')
+            ->get();
+        
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -36,28 +44,20 @@ class RegisteredUserController extends Controller
             'is_admin' => false,
         ]);
 
+        $user->assignRole('customer');
         event(new Registered($user));
 
         Auth::login($user);
 
         // Merge session cart to user cart after registration
-        $this->mergeCartAfterRegistration();
+        $this->mergeCartAfterRegistration($sessionCartItems);
 
         return redirect(route('home'))->with('success', 'Registration successful! Welcome ' . $user->name);
     }
-
-    /**
-     * Merge session cart to user cart after registration
-     */
-    protected function mergeCartAfterRegistration(): void
+    
+    protected function mergeCartAfterRegistration($sessionCartItems): void
     {
-        $sessionId = Session::getId();
         $userId = Auth::id();
-        
-        // Get session cart items (where user_id is null and session_id matches)
-        $sessionCartItems = Cart::where('session_id', $sessionId)
-            ->whereNull('user_id')
-            ->get();
         
         if ($sessionCartItems->isNotEmpty()) {
             foreach ($sessionCartItems as $sessionItem) {

@@ -20,12 +20,29 @@ class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Get the old session ID BEFORE authentication (this is the guest session)
+        $oldSessionId = Session::getId();
+        
+        // Get cart items from old session
+        $sessionCartItems = Cart::where('session_id', $oldSessionId)
+            ->whereNull('user_id')
+            ->get();
+        
         $request->authenticate();
         
         // Merge session cart to user cart after login
-        $this->mergeCartAfterLogin();
+        $this->mergeCartAfterLogin($sessionCartItems);
         
         $request->session()->regenerate();
+
+        //Role-based redirect using Spatie
+        $user = Auth::user();
+        if($user->hasRole('admin')) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+        if($user->hasRole('staff')) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
 
         // Redirect to home page
         return redirect()->intended(route('home'));
@@ -40,18 +57,9 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 
-    /**
-     * Merge session cart to user cart after login
-     */
-    protected function mergeCartAfterLogin(): void
+    protected function mergeCartAfterLogin($sessionCartItems): void
     {
-        $sessionId = Session::getId();
         $userId = Auth::id();
-        
-        // Get session cart items (where user_id is null and session_id matches)
-        $sessionCartItems = Cart::where('session_id', $sessionId)
-            ->whereNull('user_id')
-            ->get();
         
         if ($sessionCartItems->isNotEmpty()) {
             foreach ($sessionCartItems as $sessionItem) {
